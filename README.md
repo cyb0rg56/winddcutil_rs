@@ -14,7 +14,7 @@ A Rust implementation of the [ddcutil](https://github.com/rockowitz/ddcutil) Lin
 ### From Source
 
 ```
-git clone https://github.com/yourusername/winddcutil_rs.git
+git clone https://github.com/cyb0rg56/winddcutil_rs.git
 cd winddcutil_rs
 cargo build --release
 ```
