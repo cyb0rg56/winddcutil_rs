@@ -1,0 +1,16 @@
+[package]
+name = "winddcutil_rs"
+version = "0.1.0"
+edition = "2021"
+authors = ["winddcutil contributors"]
+description = "Windows utility for controlling monitor settings via DDC/CI"
+license = "MIT"
+
+[dependencies]
+clap = { version = "4.4", features = ["derive"] }
+ddc = "0.2"
+ddc-winapi = "0.2"
+display-info = "0.4"
+anyhow = "1.0"
+thiserror = "1.0"
+hex = "0.4" 
