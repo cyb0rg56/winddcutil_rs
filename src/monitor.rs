@@ -4,7 +4,6 @@ use ddc::Ddc;
 use ddc_winapi::Monitor;
 use display_info::DisplayInfo;
 
-/// Gets a list of all monitors with DDC/CI support
 pub fn get_monitors() -> Result<Vec<Monitor>> {
     let monitors = Monitor::enumerate().map_err(|e| WinddcutilError::DdcError(e.to_string()))?;
     if monitors.is_empty() {
@@ -14,7 +13,6 @@ pub fn get_monitors() -> Result<Vec<Monitor>> {
     Ok(monitors)
 }
 
-/// Gets monitor display information
 pub fn get_display_info() -> Result<Vec<DisplayInfo>> {
     match DisplayInfo::all() {
         Ok(info) => Ok(info),
@@ -22,7 +20,6 @@ pub fn get_display_info() -> Result<Vec<DisplayInfo>> {
     }
 }
 
-/// Gets a monitor by its ID (1-based index)
 pub fn get_monitor_by_id(id: u32) -> Result<Monitor> {
     let monitors = get_monitors()?;
     
@@ -35,7 +32,6 @@ pub fn get_monitor_by_id(id: u32) -> Result<Monitor> {
     Ok(monitors.into_iter().nth(idx).unwrap())
 }
 
-/// Detects and lists all available monitors
 pub fn detect_monitors() -> Result<()> {
     let monitors = get_monitors()?;
     let display_info = get_display_info()?;
@@ -59,24 +55,25 @@ pub fn detect_monitors() -> Result<()> {
     Ok(())
 }
 
-/// Gets the capabilities of a specific monitor
 pub fn get_capabilities(monitor_id: u32) -> Result<()> {
     let mut monitor = get_monitor_by_id(monitor_id)?;
     
-    // ddc_winapi doesn't directly expose get_vcp_capabilities
-    // We can list some basic information instead
     println!("Monitor capabilities:");
     println!("Note: Full capability listing not available in this implementation");
     
-    // Try to get some basic VCP features
-    let features = [0x10u8, 0x12u8, 0x60u8, 0xD6u8]; // Brightness, Contrast, Input Source, Power Mode
-    for &feature in &features {
-        match monitor.get_vcp_feature(feature) {
+    let features = [
+        (0x10u8, "Brightness"),
+        (0x12u8, "Contrast"),
+        (0x60u8, "Input Source"),
+        (0xD6u8, "Power Mode"),
+    ];
+    for &(feature_code, feature_name) in &features {
+        match monitor.get_vcp_feature(feature_code) {
             Ok(value) => {
-                println!("VCP 0x{:02X}: Value={:?}", feature, value);
+                println!("VCP 0x{:02X} ({}): Value={:?}", feature_code, feature_name, value);
             },
             Err(_) => {
-                println!("VCP 0x{:02X}: Not supported", feature);
+                println!("VCP 0x{:02X} ({}): Not supported", feature_code, feature_name);
             }
         }
     }
@@ -84,7 +81,6 @@ pub fn get_capabilities(monitor_id: u32) -> Result<()> {
     Ok(())
 }
 
-/// Sets a VCP feature value
 pub fn set_vcp_feature(monitor_id: u32, feature_code: u16, new_value: u16) -> Result<()> {
     let mut monitor = get_monitor_by_id(monitor_id)?;
     
@@ -98,7 +94,7 @@ pub fn set_vcp_feature(monitor_id: u32, feature_code: u16, new_value: u16) -> Re
     }
 }
 
-/// Gets a VCP feature value
+
 pub fn get_vcp_feature(monitor_id: u32, feature_code: u16) -> Result<()> {
     let mut monitor = get_monitor_by_id(monitor_id)?;
     
